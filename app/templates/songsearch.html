@@ -1,0 +1,170 @@
+<head>
+    <style>/* Dropdown Button */
+        .dropbtn {
+        background-color: #04AA6D;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        }
+
+        /* Dropdown button on hover & focus */
+        .dropbtn:hover, .dropbtn:focus {
+        background-color: #3e8e41;
+        }
+
+        .mainflex {
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* The search field */
+        #myInput {
+        box-sizing: border-box;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+        }
+
+        /* The search field when it gets focus/clicked on */
+        #myInput:focus {outline: 3px solid #ddd;}
+
+        /* The container <div> - needed to position the dropdown content */
+        .dropdown1 {
+        position: relative;
+        display: inline-block;
+        }
+
+        .dropdown2 {
+        position: relative;
+        display: inline-block;
+        }
+
+        /* Dropdown Content (Hidden by Default) */
+        .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        border: 1px solid #ddd;
+        z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {background-color: #f1f1f1}
+
+        /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+        .show {display:block;}
+    </style>
+    
+</head>
+
+<body>
+    <h1> Song Search </h1>
+
+    <div class = "mainflex">
+        <span class="dropdown1">
+            <button onclick="myFunction1()" class="dropbtn">Search by</button>
+            <span id="myDropdown1" class="dropdown-content">
+                <a href="title">Title</a>
+                <a href="artist">Artist</a>
+                <a href="genre">Genre</a>
+            </span>
+        </span>
+
+        <span class="dropdown2">
+            <button onclick="myFunction2()" class="dropbtn">Sort by</button>
+            <span id="myDropdown2" class="dropdown-content">
+                <a href="popularity">Popularity</a>
+                <a href="duration_mins">Duration</a>
+            </span>
+        </span>
+
+        <span>
+            <input type="checkbox" id="explicit" name="explicit" />
+            <label for= "explicit">Include explicit songs?</label>
+        </span>
+        
+        <span>
+            <input type="text" placeholder="Search.." id="myInput"> 
+            <button type="button" onclick="getData()">Search</button> 
+        </span>
+        
+        <ul id="results"></ul>
+    </div>
+    
+    <script>
+        let searchBy = "title";
+        let sortBy = "popularity";
+
+        async function getData(){
+            
+            const searchTerms = document.getElementById("myInput").value.trim();
+            if (!searchTerms) return;
+
+
+            try {
+                const response = await fetch("/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        "search-by": searchBy,
+                        "sort-by": sortBy,
+                        "explicit": document.getElementById("explicit").checked,
+                        "search-bar": searchTerms
+                    })
+                });
+                if (!response.ok) throw new Error(`Response status: ${response.status}`);
+
+                const songs = await response.json(); // REFINE 13: .json(), not .text()
+                renderResults(songs);
+            } catch (error) {
+                console.error("Failed to fetch songs:", error); // REFINE 14: message still said "ingredient"
+            }
+        }
+
+        function renderResults(songs) {
+            const list = document.getElementById("results");
+            list.replaceChildren();
+
+            for (const song in songs) {
+                const item = document.createElement("li");
+
+                // The fields that we have are: title, artists, popularity, explictit
+                // url, duration_mins, genres, year.
+
+                item.textContent = '${song.title} - ${song.artists}.join(", ")} (${song.year})';
+                list.appendChild(item);
+            }   
+        }
+
+        document.querySelectorAll("#myDropdown1 a").forEach(link => {
+            link.addEventListener("click", event => {
+                event.preventDefault();
+                searchBy = link.dataset.value;
+                document.getElementById("myDropdown1").classList.remove("show");
+            });
+        });
+
+        document.querySelectorAll("#myDropdown2 a").forEach(link => {
+            link.addEventListener("click", event => {
+                event.preventDefault();
+                searchBy = link.dataset.value;
+                document.getElementById("myDropdown1").classList.remove("show");
+            });
+        });
+    </script>
+</body>
