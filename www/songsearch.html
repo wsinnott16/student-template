@@ -87,8 +87,8 @@
         <span class="dropdown2">
             <button onclick="myFunction2()" class="dropbtn">Sort by</button>
             <span id="myDropdown2" class="dropdown-content">
-                <a href="#Title">Popularity</a>
-                <a href="#Artist">Duration</a>
+                <a href="#Popularity">Popularity</a>
+                <a href="#Duration">Duration</a>
             </span>
         </span>
 
@@ -127,6 +127,24 @@
                 } else {
                     a[i].style.display = "none";
                 }
+            }
+        }
+
+        async function getData(){
+            
+            if(window.location.href = "Title"){
+                const url = "/";
+            }
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+                }
+                const ingredient = await response.text() // Read the response body
+                document.querySelector(".ingredient").textContent = ingredient; // Update the DOM
+
+            } catch (error) {
+                console.error("Failed to fetch ingredient:", error);
             }
         }
     </script>
