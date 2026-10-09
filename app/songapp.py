@@ -45,7 +45,7 @@ def filter_tracks(tracks, search_by, search_terms, include_explicit):
 
 
 def sort_tracks(tracks, sort_by):
-    return sorted(tracks, key=lambda track: track.get(sort_by, 0), reverse=True)
+    return sorted(tracks, key=lambda t: t.get(sort_by) or 0, reverse=True)
 
 
 @app.route("/search", methods=["POST"])

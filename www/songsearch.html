@@ -1,6 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <style link = stylesheet></style>
-    
+    <meta charset="UTF-8">
+    <title>Song Search</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
@@ -40,12 +43,11 @@
     <script>
         let searchBy = "title";
         let sortBy = "popularity";
-
+        
         async function getData(){
-            
             const searchTerms = document.getElementById("myInput").value.trim();
-            if (!searchTerms) return;
-
+            const list = document.getElementById("results");
+            if (!searchTerms) { list.textContent = "Type something to search."; return; }
 
             try {
                 const response = await fetch("/search", {
@@ -59,27 +61,30 @@
                     })
                 });
                 if (!response.ok) throw new Error(`Response status: ${response.status}`);
-
-                const songs = await response.json(); // REFINE 13: .json(), not .text()
+                const songs = await response.json();
                 renderResults(songs);
             } catch (error) {
-                console.error("Failed to fetch songs:", error); // REFINE 14: message still said "ingredient"
+                console.error("Failed to fetch songs:", error);
+                list.textContent = "Error: " + error.message;
             }
         }
 
         function renderResults(songs) {
             const list = document.getElementById("results");
             list.replaceChildren();
-
+            if (songs.length === 0) {
+                list.textContent = "No results found.";
+                return;
+            }
             for (const song of songs) {
                 const item = document.createElement("li");
-
-                // The fields that we have are: title, artists, popularity, explictit
-                // url, duration_mins, genres, year.
                 item.textContent = `${song.title} - ${song.artists ? song.artists.join(", ") : ""} (${song.year})`;
                 list.appendChild(item);
-            }   
+            }
         }
+        
+
+        /* this are the functions for data collection and toggle of the menus for filtering. */
 
         function myFunction1() {
             document.getElementById("myDropdown1").classList.toggle("show");
@@ -103,5 +108,6 @@
                 document.getElementById("myDropdown2").classList.remove("show");
             });
         });
+
     </script>
 </body>
